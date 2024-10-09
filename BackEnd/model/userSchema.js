@@ -5,7 +5,12 @@ const user = mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true, select: false },
   confirmPassword: String,
-  familyMembers: ["ObjectId"],
+  familyMembers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
+  ],
   profilePicture: String,
   createdAt: { type: Date, default: new Date() },
 });
