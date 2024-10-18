@@ -8,4 +8,4 @@ userRoute.post("/signup", signUp);
 userRoute.post("/login", login);
 userRoute.get("/", verifyToken, getUsers);
 
-module.exports = { userRoute };
+module.exports = userRoute;
