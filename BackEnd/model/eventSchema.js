@@ -18,9 +18,8 @@ const event = mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: function () {
-        return !this.isDashainEvent;
-      }, // Required for user events
+
+      // Required for user events
     },
   },
   { timestamps: true }
