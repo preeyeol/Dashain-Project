@@ -49,6 +49,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await userSchema.findOne({ email: email }).select("+password");
+    console.log(user);
     if (!user) {
       return res.status(400).json({ error: "User Not Found" });
     }

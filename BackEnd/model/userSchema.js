@@ -7,8 +7,23 @@ const user = mongoose.Schema({
   confirmPassword: String,
   familyMembers: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      memberId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+      relationship: {
+        type: String,
+        enum: [
+          "brother",
+          "sister",
+          "father",
+          "mother",
+          "spouse",
+          "son",
+          "daughter",
+          "other",
+        ],
+      },
     },
   ],
   profilePicture: String,
