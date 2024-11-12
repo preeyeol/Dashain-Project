@@ -12,8 +12,8 @@ function socketHandle(io) {
     };
 
     socket.on("notify", async ({ receiverId, senderId }) => {
-      // const receiver = await tikaSchema.findOne({ receiverId: receiverId });
-      // const sender = await tikaSchema.findOne({ senderId: senderId });
+      const receiver = await tikaSchema.findOne({ receiverId: receiverId });
+      const sender = await tikaSchema.findOne({ senderId: senderId });
       if (sender)
         socket.broadcast.emit("notification", {
           msg: `${socket.senderId.username} sent tika to ${socket.receiverId.username}`,

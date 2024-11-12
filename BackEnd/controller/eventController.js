@@ -15,7 +15,7 @@ const createEvent = async (req, res) => {
       title: req.body.title,
       date: req.body.date,
       description: req.body.description,
-      userId: req.body.userId, // User's ID from JWT or session
+      userId: req.body.userId,
     });
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
@@ -32,5 +32,34 @@ const getEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+const joinEvent = async (req, res) => {
+  const eventId = req.params.eventId;
+  const userId = req.user._id;
 
-module.exports = { getDashainEvents, createEvent, getEvent };
+  const isEventExist = await eventSchema.findById(eventId);
+  console.log(isEventExist);
+
+  if (!isEventExist) {
+    return res.status(404).json({ msg: "Event not found" });
+  }
+  if ((isEventExist.participants = [userId])) {
+    return res.status(400).json({ msg: "User is already a participant" });
+  }
+
+  const creatorInfo = await User.findOne({
+    _id: isEventExist.creator,
+  });
+  console.log(userId);
+  console.log(creatorInfo.familyMembers);
+  console.log(creatorInfo.familyMembers.includes(userId));
+  if (!creatorInfo.familyMembers.includes(userId)) {
+    return res
+      .status(403)
+      .json({ msg: "You are not a family member of event creator" });
+  }
+  isEventExist.participants.push(userId);
+  await isEventExist.save();
+  res.status(200).json({ msg: "User joined the event successfully" });
+};
+
+module.exports = { getDashainEvents, createEvent, getEvent, joinEvent };
