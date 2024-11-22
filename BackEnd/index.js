@@ -83,7 +83,7 @@ mongoose
         await eventSchema.create(event);
         console.log(`Inserted event: ${event.title}`);
       } else {
-        console.log(`Event already exists: ${event.title}`);
+        console.log(`Event  exists: ${event.title}`);
       }
     }
 

@@ -1,4 +1,5 @@
 const eventSchema = require("../model/eventSchema");
+const userSchema = require("../model/userSchema");
 
 const getDashainEvents = async (req, res) => {
   try {
@@ -32,6 +33,7 @@ const getEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 const joinEvent = async (req, res) => {
   const eventId = req.params.eventId;
   const userId = req.user._id;
@@ -62,4 +64,50 @@ const joinEvent = async (req, res) => {
   res.status(200).json({ msg: "User joined the event successfully" });
 };
 
-module.exports = { getDashainEvents, createEvent, getEvent, joinEvent };
+const eventDetails = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    const event = await eventSchema.findById(eventId);
+
+    res.status(200).json({ msg: "Event Details", event });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ msg: "Server Error" });
+  }
+};
+
+const unjoinedEvents = async (req, res) => {
+  try {
+    // console.log(req.user);
+    const currentUser = await userSchema.findById(req.user._id);
+    // console.log(currentUser);
+    if (!currentUser) {
+      return res.status(404).json({ msg: "User Not Found", currentUser });
+    }
+
+    const events = await eventSchema
+      .find({
+        creator: { $in: currentUser.familyMembers },
+        participants: { $ne: currentUser },
+        date: { $gte: new Date() },
+      })
+      .sort("date")
+      .populate("creator", "email username profilePicture")
+      .populate("participants", "email username profilePicture");
+
+    res.status(200).json({ msg: "Unjoined Events", events });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ msg: "Server Error" });
+  }
+};
+
+module.exports = {
+  getDashainEvents,
+  createEvent,
+  getEvent,
+  joinEvent,
+  eventDetails,
+  unjoinedEvents,
+};

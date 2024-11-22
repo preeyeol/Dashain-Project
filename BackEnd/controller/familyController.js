@@ -4,28 +4,54 @@ const familyTree = {
   addFamily: async (req, res) => {
     try {
       const { familyMemberId } = req.body;
-      console.log(familyMemberId);
-      console.log(req.user);
+      if (!familyMemberId) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "Family member ID is required" });
+      }
+
+      const isFamilyMember = await userSchema.findById(familyMemberId);
+
+      if (!isFamilyMember) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "family member doesn't exist" });
+      }
+
       const user = await userSchema.findById(req.user._id);
 
       if (!user) {
         return res.status(404).json({ msg: "User not found" });
       }
+      console.log(user, familyMemberId);
 
-      if (user.familyMembers.includes({ memberId: familyMemberId })) {
-        return res.status(402).json({ msg: "Family member already exist" });
+      if (
+        user.familyMembers.some(
+          (member) => String(member.memberId) === familyMemberId.toString()
+        )
+      ) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "Family member already exists" });
       }
 
       user.familyMembers.push({ memberId: familyMemberId });
+
       await user.save();
 
       const familyMember = await userSchema.findById(familyMemberId);
-      if (familyMember && familyMember.familyMembers.includes(user._id)) {
-        familyMember.familyMembers.push(user._id);
+      if (
+        familyMember &&
+        !familyMember.familyMembers.some(
+          (member) => member.memberId === user._id.toString()
+        )
+      ) {
+        familyMember.familyMembers.push({ memberId: user._id });
         await familyMember.save();
       }
-      res.status(200).json(user);
+      res.status(200).json({ msg: "Family member added successfully", user });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ msg: "Server Error" });
     }
   },

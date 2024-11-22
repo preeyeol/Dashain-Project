@@ -15,12 +15,13 @@ const event = mongoose.Schema(
       type: Boolean,
       default: false, // True for predefined Dashain events
     },
-    userId: {
+    creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
 
       // Required for user events
     },
+    participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
