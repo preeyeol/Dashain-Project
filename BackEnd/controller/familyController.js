@@ -55,6 +55,60 @@ const familyTree = {
       res.status(500).json({ msg: "Server Error" });
     }
   },
+  getFamily: async (req, res) => {
+    try {
+      const user = await userSchema
+        .findOne(req.user._id)
+        .populate("familyMembers", "email username profilePicture");
+
+      const userFam = await user.familyMembers;
+      console.log(userFam);
+      res.status(200).json({ msg: "User's Family Members", userFam });
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({ msg: "Server Error", err });
+    }
+  },
+  deleteFam: async (req, res) => {
+    try {
+      const famId = req.params.id;
+      const userId = req.user._id;
+
+      const user = await userSchema.findById(userId);
+      if (!user) {
+        return res.status(404).json({ msg: "User not found" });
+      }
+
+      const familyMemberIndex = user.familyMembers.findIndex(
+        (member) => String(member.memberId) === famId
+      );
+      if (familyMemberIndex === -1) {
+        return res
+          .status(404)
+          .json({ msg: "Family member not found in user's list" });
+      }
+      user.familyMembers.splice(familyMemberIndex, 1);
+      await user.save();
+      const familyMember = await userSchema.findById(famId);
+      if (familyMember) {
+        const userIndex = familyMember.familyMembers.findIndex(
+          (member) => String(member.memberId) === String(userId)
+        );
+        if (userIndex !== -1) {
+          familyMember.familyMembers.splice(userIndex, 1);
+          await familyMember.save();
+        }
+      }
+
+      res.status(200).json({ msg: "Family member removed successfully" });
+
+      const del = await userSchema.deleteOne(famId);
+      console.log(del);
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({ msg: "Server Error", err });
+    }
+  },
 };
 
 module.exports = familyTree;

@@ -9,5 +9,7 @@ userRoute.post("/signup", signUp);
 userRoute.post("/login", login);
 userRoute.get("/", verifyToken, getUsers);
 userRoute.post("/fam", verifyToken, familyTree.addFamily);
+userRoute.get("/fam", verifyToken, familyTree.getFamily);
+userRoute.delete("/:famId", verifyToken, familyTree.deleteFam);
 
 module.exports = userRoute;
