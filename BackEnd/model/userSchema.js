@@ -7,11 +7,10 @@ const user = mongoose.Schema({
   confirmPassword: String,
   familyMembers: [
     {
-      memberId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
     },
+    ,
   ],
   profilePicture: String,
   createdAt: { type: Date, default: new Date() },
