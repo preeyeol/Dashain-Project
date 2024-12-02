@@ -10,9 +10,8 @@ const user = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
-    ,
   ],
-  profilePicture: String,
+  profilePicture: { type: String, default: "" },
   createdAt: { type: Date, default: new Date() },
 });
 

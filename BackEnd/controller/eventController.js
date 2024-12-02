@@ -12,15 +12,17 @@ const getDashainEvents = async (req, res) => {
 
 const createEvent = async (req, res) => {
   try {
+    console.log(req.user);
     const event = new eventSchema({
       title: req.body.title,
       date: req.body.date,
       description: req.body.description,
-      userId: req.body.userId,
+      creator: req.user._id,
     });
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
   } catch (err) {
+    console.log(err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -36,7 +38,10 @@ const getEvent = async (req, res) => {
 
 const joinEvent = async (req, res) => {
   const eventId = req.params.eventId;
-  const userId = req.user._id;
+  const userId = req.user.id;
+
+  console.log(eventId);
+  console.log(userId);
 
   const isEventExist = await eventSchema.findById(eventId);
   console.log(isEventExist);
@@ -44,11 +49,11 @@ const joinEvent = async (req, res) => {
   if (!isEventExist) {
     return res.status(404).json({ msg: "Event not found" });
   }
-  if ((isEventExist.participants = [userId])) {
+  if (isEventExist.participants.includes(userId)) {
     return res.status(400).json({ msg: "User is already a participant" });
   }
 
-  const creatorInfo = await User.findOne({
+  const creatorInfo = await userSchema.findOne({
     _id: isEventExist.creator,
   });
   console.log(userId);
@@ -76,20 +81,17 @@ const eventDetails = async (req, res) => {
     res.status(400).json({ msg: "Server Error" });
   }
 };
-
 const unjoinedEvents = async (req, res) => {
   try {
-    // console.log(req.user);
     const currentUser = await userSchema.findById(req.user._id);
-    // console.log(currentUser);
     if (!currentUser) {
-      return res.status(404).json({ msg: "User Not Found", currentUser });
+      return res.status(404).json({ msg: "User Not Found" });
     }
 
     const events = await eventSchema
       .find({
         creator: { $in: currentUser.familyMembers },
-        participants: { $ne: currentUser },
+        participants: { $ne: currentUser._id }, // Use user ID, not the full object
         date: { $gte: new Date() },
       })
       .sort("date")
@@ -98,8 +100,8 @@ const unjoinedEvents = async (req, res) => {
 
     res.status(200).json({ msg: "Unjoined Events", events });
   } catch (err) {
-    console.log(err);
-    res.status(400).json({ msg: "Server Error" });
+    console.error("Error fetching unjoined events:", err.message);
+    res.status(400).json({ msg: "Server Error", error: err.message });
   }
 };
 

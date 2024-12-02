@@ -14,7 +14,7 @@ eventRoute.post("/events", verifyToken, createEvent);
 eventRoute.get("/events", verifyToken, getEvent);
 eventRoute.get("/events/dashain", getDashainEvents);
 eventRoute.get("/events/unjoined", verifyToken, unjoinedEvents);
-eventRoute.post("/events/:eventId/join", verifyToken, joinEvent);
 eventRoute.get("/events/:eventId", verifyToken, eventDetails);
+eventRoute.post("/events/:eventId/join", verifyToken, joinEvent);
 
 module.exports = eventRoute;

@@ -17,8 +17,13 @@ const verifyToken = async (req, res, next) => {
 
     const decode = jwt.verify(token, process.env.jwt_secret);
 
-    const user = await userSchema.findOne({ _id: decode.id });
+    const user = await userSchema.findById(decode.id);
+
+    if (!user) {
+      res.status(400).json({ msg: "decoded id not found in db " });
+    }
     req.user = user;
+
     next();
   } catch (err) {
     console.log(err);

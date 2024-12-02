@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const photo = new mongoose.Schema({
+const photo = mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "user",
     required: true,
   },
   imageUrl: {
@@ -13,12 +13,13 @@ const photo = new mongoose.Schema({
   description: {
     type: String,
   },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const photoSchema = mongoose.model("Photo", photo);
+const photoSchema = mongoose.model("photo", photo);
 
 module.exports = photoSchema;

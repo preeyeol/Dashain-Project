@@ -32,8 +32,8 @@ const familyTree = {
 
       await currentUser.familyMembers.push(familyToAdd._id);
       await familyToAdd.familyMembers.push(currentUser._id);
-      currentUser.save();
-      familyToAdd.save();
+      await currentUser.save();
+      await familyToAdd.save();
 
       const updatedUser = await userSchema
         .findById(userId)
@@ -69,7 +69,7 @@ const familyTree = {
   deleteFam: async (req, res) => {
     try {
       const { famId } = req.params;
-      console.log(famId);
+      const userId = req.user._id;
       const currentUser = await userSchema.findById(req.user._id);
       console.log(currentUser);
 
@@ -77,16 +77,39 @@ const familyTree = {
         return res.status(400).json({ msg: "User is not a family member" });
       }
 
-      const delFam = await currentUser.familyMembers.filter(
+      const familyToDelete = await userSchema.findById(famId);
+      if (!familyToDelete) {
+        return res.status(400).json({ msg: "User doesn't exist" });
+      }
+
+      if (!currentUser.familyMembers.includes(familyToDelete._id)) {
+        return res.status(400).json({ msg: "User is not a family" });
+      }
+      currentUser.familyMembers = currentUser.familyMembers.filter(
         (fam) => fam._id.toString() !== famId
       );
-      console.log(delFam);
-      res
-        .status(200)
-        .json({ msg: "Family member removed successfully", delFam });
+      familyToDelete.familyMembers = familyToDelete.familyMembers.filter(
+        (fam) => fam._id.toString() !== currentUser._id.toString()
+      );
+
+      await currentUser.save();
+      await familyToDelete.save();
+
+      const updatedUser = await userSchema
+        .findById(userId)
+        .populate("familyMembers", "username email");
+
+      const updatedFam = await userSchema
+        .findById(famId)
+        .populate("familyMembers", "username email");
+      res.status(200).json({
+        msg: "Family member removed successfully",
+        currentUser: updatedUser,
+        familyToDelete: updatedFam,
+      });
     } catch (err) {
       console.log(err);
-      res.status(400).json({ msg: "Server Error" });
+      +res.status(400).json({ msg: "Server Error" });
     }
   },
 };

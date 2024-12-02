@@ -14,16 +14,32 @@ app.use(express.json());
 const userRoute = require("./route/userRoute");
 const tikaRoute = require("./route/tikaRoute");
 const eventRoute = require("./route/eventRoute");
+const dashRoute = require("./route/dashboardRoute");
+const photoRoute = require("./route/photoRoute");
+const searchRoute = require("./route/searchRoute");
+const profileRoute = require("./route/profileRoute");
+const AppError = require("./utils/appError");
+
+const errorHandler = require("./middleware/errorMiddleware");
+
+app.get("/errorTest", (req, res) => {
+  const error = new Error("Developement Error", 500);
+  throw error;
+});
+
+app.use("/api", userRoute);
+app.use("/api", tikaRoute);
+app.use("/api", eventRoute);
+app.use("/api/dashboard", dashRoute);
+app.use("/api/photos", photoRoute);
+app.use("/api", searchRoute);
+app.use("/api", profileRoute);
 
 const { socketVerify } = require("./middleware/auth");
 const socketHandle = require("./socket/socket");
 
 io.use(socketVerify);
 socketHandle(io);
-
-app.use("/api", userRoute);
-app.use("/api", tikaRoute);
-app.use("/api", eventRoute);
 
 const dashainEvents = [
   {
@@ -63,7 +79,7 @@ const dashainEvents = [
     isDashainEvent: true,
   },
 ];
-
+app.use(errorHandler);
 const eventSchema = require("./model/eventSchema");
 
 mongoose
