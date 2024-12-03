@@ -18,7 +18,7 @@ const dashRoute = require("./route/dashboardRoute");
 const photoRoute = require("./route/photoRoute");
 const searchRoute = require("./route/searchRoute");
 const profileRoute = require("./route/profileRoute");
-const AppError = require("./utils/appError");
+// const AppError = require("./utils/appError");
 
 const errorHandler = require("./middleware/errorMiddleware");
 
@@ -35,7 +35,7 @@ app.use("/api/photos", photoRoute);
 app.use("/api", searchRoute);
 app.use("/api", profileRoute);
 
-const { socketVerify } = require("./middleware/auth");
+const socketVerify = require("./middleware/socketMiddleware");
 const socketHandle = require("./socket/socket");
 
 io.use(socketVerify);
@@ -99,12 +99,8 @@ mongoose
         // If the event does not exist, insert it
         await eventSchema.create(event);
         console.log(`Inserted event: ${event.title}`);
-      } else {
-        console.log(`Event  exists: ${event.title}`);
       }
     }
-
-    console.log("Finished checking and inserting Dashain events");
   })
   .catch((err) => {
     console.log("Can't connect to MongoDB", err);

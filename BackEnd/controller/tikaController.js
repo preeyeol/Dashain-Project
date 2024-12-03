@@ -1,18 +1,35 @@
 const tikaSchema = require("../model/tikaSchema");
 
-const tikaExchange = async (req, res) => {
-  try {
-    const { message } = req.body;
-    const tikaExchange = new tikaSchema({
-      message: message,
-    });
+const tikaController = {
+  sendTika: async (req, res) => {
+    try {
+      const { receiverId, message } = req.body;
+      const tika = new tikaSchema({
+        senderId: req.user.userId,
+        receiverId,
+        message,
+      });
 
-    const tika = await tikaExchange.save();
-    res.status(200).json({ msg: "You successfully sent tika", tika });
-  } catch (err) {
-    console.log(err);
-    res.json({ msg: "Server Error" });
-  }
+      await tika.save();
+      res.status(201).json(tika);
+    } catch (error) {
+      console.log("Error sending tika:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  },
+
+  getTikas: async (req, res) => {
+    try {
+      const tikas = await tikaSchema
+        .find({ receiverId: req.user.userId })
+        .populate("senderId", "name")
+        .sort("-createdAt");
+      res.json(tikas);
+    } catch (error) {
+      console.log("Error getting tikas:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  },
 };
 
-module.exports = tikaExchange;
+module.exports = tikaController;

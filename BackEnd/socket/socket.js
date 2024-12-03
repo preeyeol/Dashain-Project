@@ -1,4 +1,5 @@
 const tikaSchema = require("../model/tikaSchema");
+const msgHandler = require("../socket/handler/messageHandler");
 
 function socketHandle(io) {
   io.on("connection", (socket) => {
@@ -19,6 +20,7 @@ function socketHandle(io) {
           msg: `${socket.senderId.username} sent tika to ${socket.receiverId.username}`,
         });
     });
+    msgHandler(io, socket);
   });
 }
 
