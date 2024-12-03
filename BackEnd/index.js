@@ -79,6 +79,7 @@ const dashainEvents = [
     isDashainEvent: true,
   },
 ];
+
 app.use(errorHandler);
 const eventSchema = require("./model/eventSchema");
 
