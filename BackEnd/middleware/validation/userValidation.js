@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
 const validateRegistration = () => {
   return [
@@ -54,7 +54,25 @@ const validateLogin = () => {
   ];
 };
 
+const validateAddFamily = () => {
+  return [
+    body("famId").notEmpty().withMessage("Provide family's _id").isMongoId(),
+  ];
+};
+
+const validateDeleteFamily = () => {
+  return [
+    param("famId")
+      .exists()
+      .withMessage("Provide family _id in params")
+      .isMongoId()
+      .withMessage("Provide valid Id"),
+  ];
+};
+
 module.exports = {
   validateRegistration,
   validateLogin,
+  validateAddFamily,
+  validateDeleteFamily,
 };

@@ -8,13 +8,27 @@ const {
   validate,
   validateRegistration,
   validateLogin,
+  validateAddFamily,
+  validateDeleteFamily,
 } = require("../middleware/validation");
 
 userRoute.post("/signup", validateRegistration(), validate, signUp);
 userRoute.post("/login", validateLogin(), validate, login);
 userRoute.get("/", verifyToken, getUsers);
-userRoute.post("/fam", verifyToken, familyTree.addFamily);
+userRoute.post(
+  "/fam",
+  verifyToken,
+  validateAddFamily(),
+  validate,
+  familyTree.addFamily
+);
 userRoute.get("/fam", verifyToken, familyTree.getFamily);
-userRoute.delete("/:famId", verifyToken, familyTree.deleteFam);
+userRoute.delete(
+  "/fam/:famId",
+  verifyToken,
+  validateDeleteFamily(),
+  validate,
+  familyTree.deleteFam
+);
 
 module.exports = userRoute;

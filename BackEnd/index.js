@@ -107,7 +107,7 @@ mongoose
   .catch((err) => {
     console.log("Can't connect to MongoDB", err);
   });
-
+app.use(errorHandler);
 server.listen(8090, () => {
   console.log("The Server is running on port 8090");
 });
