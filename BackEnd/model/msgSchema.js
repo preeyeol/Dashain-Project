@@ -5,7 +5,7 @@ const message = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "event",
   },
-  senderId: {
+  sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },

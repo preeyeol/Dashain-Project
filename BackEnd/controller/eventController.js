@@ -19,6 +19,7 @@ const createEvent = async (req, res) => {
       description: req.body.description,
       creator: req.user._id,
     });
+    event.participants.push(req.user._id);
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
   } catch (err) {

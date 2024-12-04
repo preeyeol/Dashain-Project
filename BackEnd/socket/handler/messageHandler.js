@@ -3,28 +3,26 @@ const eventSchema = require("../../model/eventSchema");
 
 const msgHandler = (io, socket) => {
   socket.on("send-msg", async (data) => {
-    try {
-      const { eventId, content } = data;
+    const { eventId, message } = data;
 
-      const event = await eventSchema.findById(eventId);
-      if (!event || event.participants.includes(socket.user._id)) {
-        console.log("Hhh");
-        socket.emit("error", { message: "Not authorized to send messages" });
-        return;
-      }
-
-      const message = new msgSchema({
-        eventId,
-        sender: socket.user._id,
-        content,
-      });
-      await message.save(),
-        await message.populate("sender", "name email profilePicture");
-
-      io.to(`event:${eventId}`).emit("new-message", message);
-    } catch (error) {
-      socket.emit("error", { message: "Error sending message" });
+    const event = await eventSchema.findById(eventId);
+    if (!event || !event.participants.includes(socket.user._id)) {
+      socket.emit("error", { message: "Not authorized to send messages" });
+      return;
     }
+    console.log(event);
+
+    const newMessage = new msgSchema({
+      eventId,
+      sender: socket.user._id,
+      message,
+    });
+    await newMessage.save(),
+      await newMessage.populate("sender", "name email profilePicture");
+
+    console.log(newMessage);
+
+    io.to(`event:${eventId}`).emit("new-message", newMessage);
   });
 };
 

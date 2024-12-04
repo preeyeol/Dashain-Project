@@ -1,9 +1,17 @@
-const tikaSchema = require("../model/tikaSchema");
+// const tikaSchema = require("../model/tikaSchema");
 const msgHandler = require("../socket/handler/messageHandler");
+const notificationHanlder = require("../socket/handler/notificationHanlder");
 
 function socketHandle(io) {
   io.on("connection", (socket) => {
     console.log(`${socket.user.username} is connected`);
+    console.log(socket.user._id);
+    socket.join(`user-${socket.user._id.toString()}`);
+    console.log(
+      `${
+        socket.user.username
+      } has joined in room user-${socket.user._id.toString()}`
+    );
 
     const errorHandler = (err) => {
       socket.emit("error", {
@@ -12,15 +20,14 @@ function socketHandle(io) {
       });
     };
 
-    socket.on("notify", async ({ receiverId, senderId }) => {
-      const receiver = await tikaSchema.findOne({ receiverId: receiverId });
-      const sender = await tikaSchema.findOne({ senderId: senderId });
-      if (sender)
-        socket.broadcast.emit("notification", {
-          msg: `${socket.senderId.username} sent tika to ${socket.receiverId.username}`,
-        });
+    socket.on("join-event", (eventId) => {
+      socket.join(`event:${eventId}`);
+      console.log(`${socket.user.username} has joined in eventId ${eventId}`);
     });
+
     msgHandler(io, socket);
+
+    notificationHanlder(io, socket);
   });
 }
 

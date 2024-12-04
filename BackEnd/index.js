@@ -41,6 +41,8 @@ const socketHandle = require("./socket/socket");
 io.use(socketVerify);
 socketHandle(io);
 
+app.set("io", io);
+
 const dashainEvents = [
   {
     title: "Ghatasthapana",
@@ -80,7 +82,7 @@ const dashainEvents = [
   },
 ];
 
-app.use(errorHandler);
+// app.use(errorHandler);
 const eventSchema = require("./model/eventSchema");
 
 mongoose

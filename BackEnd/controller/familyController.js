@@ -5,11 +5,9 @@ const familyTree = {
     try {
       const { famId } = req.body;
       const userId = req.user._id;
-      console.log(famId);
-      console.log(userId);
+
       const currentUser = await userSchema.findById(userId);
 
-      console.log(currentUser);
       if (!famId) {
         return res.status(400).json({ msg: "FamId is required" });
       }
@@ -24,7 +22,6 @@ const familyTree = {
       if (!familyToAdd) {
         return res.status(400).json({ msg: "User doesn't exist" });
       }
-      console.log(familyToAdd);
 
       if (currentUser.familyMembers.includes(familyToAdd._id)) {
         return res.status(400).json({ msg: "Family member already exist" });
@@ -58,7 +55,7 @@ const familyTree = {
       const currentUser = await userSchema
         .findById(userId)
         .populate("familyMembers", "email username");
-      console.log(currentUser);
+
       const userFam = currentUser.familyMembers;
       res.status(200).json({ msg: "User's family members", userFam });
     } catch (err) {
@@ -71,7 +68,6 @@ const familyTree = {
       const { famId } = req.params;
       const userId = req.user._id;
       const currentUser = await userSchema.findById(req.user._id);
-      console.log(currentUser);
 
       if (!currentUser.familyMembers.includes(famId)) {
         return res.status(400).json({ msg: "User is not a family member" });
