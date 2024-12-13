@@ -6,10 +6,13 @@ const {
   validateDeleteFamily,
 } = require("./userValidation");
 
+const { validateEventCreation } = require("./eventValidation");
+
 module.exports = {
   validate,
   validateRegistration,
   validateLogin,
   validateAddFamily,
   validateDeleteFamily,
+  validateEventCreation,
 };

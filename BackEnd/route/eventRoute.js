@@ -1,5 +1,6 @@
 const express = require("express");
 const eventRoute = express.Router();
+const { validate, validateEventCreation } = require("../middleware/validation");
 const {
   createEvent,
   getEvent,
@@ -10,7 +11,13 @@ const {
 } = require("../controller/eventController");
 const { verifyToken } = require("../middleware/auth");
 
-eventRoute.post("/events", verifyToken, createEvent);
+eventRoute.post(
+  "/events",
+  verifyToken,
+  validateEventCreation(),
+  validate,
+  createEvent
+);
 eventRoute.get("/events", verifyToken, getEvent);
 eventRoute.get("/events/dashain", getDashainEvents);
 eventRoute.get("/events/unjoined", verifyToken, unjoinedEvents);
