@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
 const validateUploadPhoto = () => {
   return [
@@ -11,6 +11,16 @@ const validateUploadPhoto = () => {
   ];
 };
 
+const validateDeletePhoto = () => {
+  return [
+    param("photoId")
+      .notEmpty()
+      .withMessage("Provide object Id of Photo")
+      .isMongoId()
+      .withMessage("Provide valid photo Id"),
+  ];
+};
 module.exports = {
   validateUploadPhoto,
+  validateDeletePhoto,
 };

@@ -11,7 +11,10 @@ const {
   validateEventJoin,
 } = require("./eventValidation");
 
-const { validateUploadPhoto } = require("./photoValidation");
+const {
+  validateUploadPhoto,
+  validateDeletePhoto,
+} = require("./photoValidation");
 
 module.exports = {
   validate,
@@ -22,4 +25,5 @@ module.exports = {
   validateEventCreation,
   validateEventJoin,
   validateUploadPhoto,
+  validateDeletePhoto,
 };

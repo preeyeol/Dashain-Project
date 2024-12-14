@@ -3,7 +3,11 @@ const photoRoute = express.Router();
 const { verifyToken } = require("../middleware/auth");
 const photos = require("../controller/photoController");
 const upload = require("../middleware/uploadFile");
-const { validate, validateUploadPhoto } = require("../middleware/validation");
+const {
+  validate,
+  validateUploadPhoto,
+  validateDeletePhoto,
+} = require("../middleware/validation");
 
 photoRoute.post(
   "/",
@@ -16,6 +20,12 @@ photoRoute.post(
 photoRoute.get("/shared", verifyToken, photos.getSharedPhotos);
 photoRoute.get("/user", verifyToken, photos.getUserPhotos);
 photoRoute.post("/:photoId/like", verifyToken, photos.photoLike);
-photoRoute.delete("/:photoId", verifyToken, photos.deletePhoto);
+photoRoute.delete(
+  "/:photoId",
+  verifyToken,
+  validateDeletePhoto(),
+  validate,
+  photos.deletePhoto
+);
 
 module.exports = photoRoute;
