@@ -6,7 +6,12 @@ const {
   validateDeleteFamily,
 } = require("./userValidation");
 
-const { validateEventCreation } = require("./eventValidation");
+const {
+  validateEventCreation,
+  validateEventJoin,
+} = require("./eventValidation");
+
+const { validateUploadPhoto } = require("./photoValidation");
 
 module.exports = {
   validate,
@@ -15,4 +20,6 @@ module.exports = {
   validateAddFamily,
   validateDeleteFamily,
   validateEventCreation,
+  validateEventJoin,
+  validateUploadPhoto,
 };

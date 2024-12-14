@@ -16,9 +16,10 @@ const validateEventCreation = () => {
 };
 
 const validateEventJoin = () => {
-  return [param("")];
+  return [param("eventId").isMongoId().withMessage("Provide a valid event Id")];
 };
 
 module.exports = {
   validateEventCreation,
+  validateEventJoin,
 };

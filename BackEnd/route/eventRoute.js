@@ -1,6 +1,10 @@
 const express = require("express");
 const eventRoute = express.Router();
-const { validate, validateEventCreation } = require("../middleware/validation");
+const {
+  validate,
+  validateEventCreation,
+  validateEventJoin,
+} = require("../middleware/validation");
 const {
   createEvent,
   getEvent,
@@ -22,6 +26,12 @@ eventRoute.get("/events", verifyToken, getEvent);
 eventRoute.get("/events/dashain", getDashainEvents);
 eventRoute.get("/events/unjoined", verifyToken, unjoinedEvents);
 eventRoute.get("/events/:eventId", verifyToken, eventDetails);
-eventRoute.post("/events/:eventId/join", verifyToken, joinEvent);
+eventRoute.post(
+  "/events/:eventId/join",
+  verifyToken,
+  validateEventJoin(),
+  validate,
+  joinEvent
+);
 
 module.exports = eventRoute;

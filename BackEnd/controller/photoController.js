@@ -108,7 +108,7 @@ const photos = {
         });
       }
 
-      const filePath = path.join(__dirname, "..", "uoload", photo.imageUrl);
+      const filePath = path.join(__dirname, "..", "upload", photo.imageUrl);
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, (err) => {
           if (err) console.error("error deleting file", err);
