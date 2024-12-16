@@ -2,9 +2,10 @@ const userSchema = require("../model/userSchema");
 const eventSchema = require("../model/eventSchema");
 const photoSchema = require("../model/photoSchema");
 const msgSchema = require("../model/msgSchema");
+const catchAsync = require("../utils/catchAsync");
 
 const dashboardController = {
-  getDashboardData: async (req, res) => {
+  getDashboardData: catchAsync(async (req, res) => {
     try {
       const userCount = await userSchema.countDocuments();
       const eventCount = await eventSchema.countDocuments();
@@ -19,9 +20,9 @@ const dashboardController = {
       console.log(err);
       res.status(500).json({ msg: "Server Error", err });
     }
-  },
+  }),
 
-  getPhotoStatistics: async (req, res) => {
+  getPhotoStatistics: catchAsync(async (req, res) => {
     try {
       const photoCount = await photoSchema.countDocuments();
 
@@ -57,9 +58,9 @@ const dashboardController = {
       console.log(err);
       res.status(500).json({ msg: "Server Error", err });
     }
-  },
+  }),
 
-  msgStats: async (req, res) => {
+  msgStats: catchAsync(async (req, res) => {
     try {
       const msgCount = await msgSchema.aggregate([
         {
@@ -101,8 +102,8 @@ const dashboardController = {
       console.log(err);
       res.status(500).json({ msg: "Server Error", err });
     }
-  },
-  eventPerDate: async (req, res) => {
+  }),
+  eventPerDate: catchAsync(async (req, res) => {
     try {
       const eventDate = await eventSchema.aggregate([
         {
@@ -131,7 +132,7 @@ const dashboardController = {
       console.log(err);
       res.status(500).json({ msg: "Server Error" });
     }
-  },
+  }),
 };
 
 module.exports = dashboardController;

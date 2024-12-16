@@ -1,16 +1,17 @@
 const eventSchema = require("../model/eventSchema");
 const userSchema = require("../model/userSchema");
+const catchAsync = require("../utils/catchAsync");
 
-const getDashainEvents = async (req, res) => {
+const getDashainEvents = catchAsync(async (req, res) => {
   try {
     const dashainEvents = await eventSchema.find({ isDashainEvent: true });
     res.status(200).json(dashainEvents);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+});
 
-const createEvent = async (req, res) => {
+const createEvent = catchAsync(async (req, res) => {
   try {
     const event = new eventSchema({
       title: req.body.title,
@@ -26,26 +27,22 @@ const createEvent = async (req, res) => {
     console.log(err);
     res.status(400).json({ message: err.message });
   }
-};
+});
 
-const getEvent = async (req, res) => {
+const getEvent = catchAsync(async (req, res) => {
   try {
     const events = await eventSchema.find({ userId: req.params.userId });
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-};
+});
 
-const joinEvent = async (req, res) => {
+const joinEvent = catchAsync(async (req, res) => {
   const eventId = req.params.eventId;
   const userId = req.user.id;
 
-  console.log(eventId);
-  console.log(userId);
-
   const isEventExist = await eventSchema.findById(eventId);
-  console.log(isEventExist);
 
   if (!isEventExist) {
     return res.status(404).json({ msg: "Event not found" });
@@ -57,9 +54,7 @@ const joinEvent = async (req, res) => {
   const creatorInfo = await userSchema.findOne({
     _id: isEventExist.creator,
   });
-  console.log(userId);
-  console.log(creatorInfo.familyMembers);
-  console.log(creatorInfo.familyMembers.includes(userId));
+
   if (!creatorInfo.familyMembers.includes(userId)) {
     return res
       .status(403)
@@ -68,9 +63,9 @@ const joinEvent = async (req, res) => {
   isEventExist.participants.push(userId);
   await isEventExist.save();
   res.status(200).json({ msg: "User joined the event successfully" });
-};
+});
 
-const eventDetails = async (req, res) => {
+const eventDetails = catchAsync(async (req, res) => {
   try {
     const eventId = req.params.eventId;
 
@@ -81,8 +76,8 @@ const eventDetails = async (req, res) => {
     console.log(err);
     res.status(400).json({ msg: "Server Error" });
   }
-};
-const unjoinedEvents = async (req, res) => {
+});
+const unjoinedEvents = catchAsync(async (req, res) => {
   try {
     const currentUser = await userSchema.findById(req.user._id);
     if (!currentUser) {
@@ -104,7 +99,7 @@ const unjoinedEvents = async (req, res) => {
     console.error("Error fetching unjoined events:", err.message);
     res.status(400).json({ msg: "Server Error", error: err.message });
   }
-};
+});
 
 module.exports = {
   getDashainEvents,

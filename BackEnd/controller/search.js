@@ -1,7 +1,8 @@
 const eventSchema = require("../model/eventSchema");
 const userSchema = require("../model/userSchema");
+const catchAsync = require("../utils/catchAsync");
 
-const search = async (req, res) => {
+const search = catchAsync(async (req, res) => {
   try {
     const { email, title } = req.query;
     console.log(email);
@@ -31,6 +32,6 @@ const search = async (req, res) => {
     console.log(err);
     res.status(500).json({ msg: "Server Error", err });
   }
-};
+});
 
 module.exports = search;

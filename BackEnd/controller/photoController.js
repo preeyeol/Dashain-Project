@@ -2,9 +2,10 @@ const photoSchema = require("../model/photoSchema");
 const userSchema = require("../model/userSchema");
 const path = require("path");
 const fs = require("fs");
+const catchAsync = require("../utils/catchAsync");
 
 const photos = {
-  uploadPhoto: async (req, res) => {
+  uploadPhoto: catchAsync(async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ msg: "No file provided" });
@@ -23,9 +24,9 @@ const photos = {
       console.log(err);
       res.status(400).json({ msg: "Server error", err });
     }
-  },
+  }),
 
-  getSharedPhotos: async (req, res) => {
+  getSharedPhotos: catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const currentUser = await userSchema.findById(userId);
@@ -47,8 +48,8 @@ const photos = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
-  getUserPhotos: async (req, res) => {
+  }),
+  getUserPhotos: catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const photos = await photoSchema
@@ -61,9 +62,9 @@ const photos = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
+  }),
 
-  photoLike: async (req, res) => {
+  photoLike: catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const photoId = req.params.photoId;
@@ -93,9 +94,9 @@ const photos = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
+  }),
 
-  deletePhoto: async (req, res) => {
+  deletePhoto: catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const photoId = req.params.photoId;
@@ -121,7 +122,7 @@ const photos = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
+  }),
 };
 
 module.exports = photos;

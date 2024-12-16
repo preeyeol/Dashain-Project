@@ -1,7 +1,7 @@
 const tikaSchema = require("../model/tikaSchema");
-
+const catchAsync = require("../utils/catchAsync");
 const tikaController = {
-  sendTika: async (req, res) => {
+  sendTika: catchAsync(async (req, res) => {
     try {
       const { receiverId, message } = req.body;
       const tika = new tikaSchema({
@@ -16,9 +16,9 @@ const tikaController = {
       console.log("Error sending tika:", error);
       res.status(500).json({ message: "Server error", error: error.message });
     }
-  },
+  }),
 
-  getTikas: async (req, res) => {
+  getTikas: catchAsync(async (req, res) => {
     try {
       const tikas = await tikaSchema
         .find({ receiverId: req.user.userId })
@@ -29,7 +29,7 @@ const tikaController = {
       console.log("Error getting tikas:", error);
       res.status(500).json({ message: "Server error", error: error.message });
     }
-  },
+  }),
 };
 
 module.exports = tikaController;

@@ -2,8 +2,9 @@ const userSchema = require("../model/userSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const catchAsync = require("../utils/catchAsync");
 
-const signUp = async (req, res) => {
+const signUp = catchAsync(async (req, res) => {
   try {
     const { email, username, password, confirmPassword } = req.body;
 
@@ -42,9 +43,9 @@ const signUp = async (req, res) => {
     console.log(err);
     res.json({ msg: "Server Error" });
   }
-};
+});
 
-const login = async (req, res) => {
+const login = catchAsync(async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -74,9 +75,9 @@ const login = async (req, res) => {
       msg: "Server Error",
     });
   }
-};
+});
 
-const profileUp = async (req, res) => {
+const profileUp = catchAsync(async (req, res) => {
   try {
     const user = req.user;
     console.log(req.file);
@@ -92,12 +93,12 @@ const profileUp = async (req, res) => {
   } catch (err) {
     console.log("Server error");
   }
-};
+});
 
-const getUsers = async (req, res) => {
+const getUsers = catchAsync(async (req, res) => {
   const users = await userSchema.find({});
 
   res.json(users);
-};
+});
 
 module.exports = { signUp, login, getUsers, profileUp };

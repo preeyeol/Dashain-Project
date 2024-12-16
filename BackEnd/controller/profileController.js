@@ -1,9 +1,8 @@
 const userSchema = require("../model/userSchema");
-const eventSchema = require("../model/eventSchema");
-const photoSchema = require("../model/photoSchema");
+const catchAsync = require("../utils/catchAsync");
 
 const profileController = {
-  updateProfile: async (req, res) => {
+  updateProfile: catchAsync(async (req, res) => {
     const userId = req.user._id;
     const user = await userSchema.findById(userId);
 
@@ -19,7 +18,7 @@ const profileController = {
     }
 
     console.log(user);
-  },
+  }),
 };
 
 module.exports = profileController;

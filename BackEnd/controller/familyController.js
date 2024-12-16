@@ -1,7 +1,8 @@
 const userSchema = require("../model/userSchema");
+const catchAsync = require("../utils/catchAsync");
 
 const familyTree = {
-  addFamily: async (req, res) => {
+  addFamily: catchAsync(async (req, res) => {
     try {
       const { famId } = req.body;
       const userId = req.user._id;
@@ -48,9 +49,9 @@ const familyTree = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
+  }),
 
-  getFamily: async (req, res) => {
+  getFamily: catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const currentUser = await userSchema
@@ -63,8 +64,8 @@ const familyTree = {
       console.log(err);
       res.status(400).json({ msg: "Server Error", err });
     }
-  },
-  deleteFam: async (req, res) => {
+  }),
+  deleteFam: catchAsync(async (req, res) => {
     try {
       const { famId } = req.params;
       const userId = req.user._id;
@@ -108,7 +109,7 @@ const familyTree = {
       console.log(err);
       +res.status(400).json({ msg: "Server Error" });
     }
-  },
+  }),
 };
 
 module.exports = familyTree;
