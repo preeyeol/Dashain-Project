@@ -6,10 +6,29 @@ const app = express();
 
 const { Server } = require("socket.io");
 
+//Securities Package ::
+
+const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.json());
+app.use(morgan("tiny"));
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 5,
+  message: "Too many requests, please try again later",
+});
+
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
 
 const userRoute = require("./route/userRoute");
 const tikaRoute = require("./route/tikaRoute");
@@ -18,13 +37,22 @@ const dashRoute = require("./route/dashboardRoute");
 const photoRoute = require("./route/photoRoute");
 const searchRoute = require("./route/searchRoute");
 const profileRoute = require("./route/profileRoute");
-// const AppError = require("./utils/appError");
+const AppError = require("./utils/appError");
 
 const errorHandler = require("./middleware/errorMiddleware");
 
 app.get("/errorTest", (req, res) => {
   const error = new Error("Developement Error", 500);
   throw error;
+});
+
+app.post("/test", limiter, async (req, res, next) => {
+  try {
+    const username = await userSchema.find(req.body);
+    res.json({ username });
+  } catch (err) {
+    next(new AppError("Error ", 400));
+  }
 });
 
 app.use("/api", userRoute);
@@ -84,6 +112,7 @@ const dashainEvents = [
 
 // app.use(errorHandler);
 const eventSchema = require("./model/eventSchema");
+const userSchema = require("./model/userSchema");
 
 mongoose
   .connect("mongodb://localhost:27017/dashainproject1")
