@@ -16,6 +16,8 @@ const {
   validateDeletePhoto,
 } = require("./photoValidation");
 
+const { validateSendTika } = require("./tikaValidation");
+
 module.exports = {
   validate,
   validateRegistration,
@@ -26,4 +28,5 @@ module.exports = {
   validateEventJoin,
   validateUploadPhoto,
   validateDeletePhoto,
+  validateSendTika,
 };

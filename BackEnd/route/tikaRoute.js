@@ -3,8 +3,15 @@ const tikaRoute = express.Router();
 
 const { verifyToken } = require("../middleware/auth");
 const tikaController = require("../controller/tikaController");
+const { validate, validateSendTika } = require("../middleware/validation");
 
-tikaRoute.post("/tika", verifyToken, tikaController.sendTika);
+tikaRoute.post(
+  "/tika",
+  verifyToken,
+  validateSendTika(),
+  validate,
+  tikaController.sendTika
+);
 
 tikaRoute.get("/tika", verifyToken, tikaController.getTikas);
 
