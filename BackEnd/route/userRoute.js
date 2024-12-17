@@ -1,7 +1,12 @@
 const express = require("express");
 const userRoute = express.Router();
 
-const { signUp, login, getUsers } = require("../controller/userController");
+const {
+  signUp,
+  verifyEmail,
+  login,
+  getUsers,
+} = require("../controller/userController");
 const { verifyToken } = require("../middleware/auth");
 const familyTree = require("../controller/familyController");
 const {
@@ -11,8 +16,10 @@ const {
   validateAddFamily,
   validateDeleteFamily,
 } = require("../middleware/validation");
+const { verify } = require("jsonwebtoken");
 
 userRoute.post("/signup", validateRegistration(), validate, signUp);
+userRoute.post("/verifyEmail", verifyEmail);
 userRoute.post("/login", validateLogin(), validate, login);
 userRoute.get("/", verifyToken, getUsers);
 userRoute.post(

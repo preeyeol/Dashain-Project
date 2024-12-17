@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const catchAsync = require("../utils/catchAsync");
+const {
+  sendVerificationCode,
+  welcomeEmail,
+} = require("../middleware/emailVerify/email");
 
 const signUp = catchAsync(async (req, res) => {
   try {
@@ -29,14 +33,19 @@ const signUp = catchAsync(async (req, res) => {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     const userAdd = new userSchema({
       email: email,
       username: username,
       password: hashPassword,
+      verificationCode,
     });
 
     const newUser = await userAdd.save();
+    sendVerificationCode(newUser.email, verificationCode);
 
     res.status(200).json({ msg: "You have Signed Up", newUser });
   } catch (err) {
@@ -45,36 +54,50 @@ const signUp = catchAsync(async (req, res) => {
   }
 });
 
+const verifyEmail = catchAsync(async (req, res) => {
+  const { code } = req.body;
+  const user = await userSchema.findOne({
+    verificationCode: code,
+  });
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid or Expired Code" });
+  }
+
+  (user.isVerified = true), (user.verificationCode = undefined);
+
+  await user.save();
+  await welcomeEmail(user.email, user.username);
+  res
+    .status(200)
+    .json({ success: true, message: "Email verified successfully" });
+});
+
 const login = catchAsync(async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const user = await userSchema.findOne({ email: email }).select("+password");
-    console.log(user);
-    if (!user) {
-      return res.status(400).json({ error: "User Not Found" });
-    }
+  const user = await userSchema.findOne({ email: email }).select("+password");
+  console.log(user);
+  if (!user) {
+    return res.status(400).json({ error: "User Not Found" });
+  }
 
-    const isCorrect = await bcrypt.compare(password, user.password);
-    if (!isCorrect) {
-      return res.status(400).json({
-        error: "Incorrect email or password",
-      });
-    }
-    const accessToken = jwt.sign({ id: user._id }, process.env.jwt_secret, {
-      issuer: process.env.jwt_issuer,
-      expiresIn: process.env.jwt_expiresIn,
-    });
-    res.status(200).json({
-      msg: "Login Succesful",
-      accessToken: accessToken,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      msg: "Server Error",
+  const isCorrect = await bcrypt.compare(password, user.password);
+  if (!isCorrect) {
+    return res.status(400).json({
+      error: "Incorrect email or password",
     });
   }
+  const accessToken = jwt.sign({ id: user._id }, process.env.jwt_secret, {
+    issuer: process.env.jwt_issuer,
+    expiresIn: process.env.jwt_expiresIn,
+  });
+  res.status(200).json({
+    msg: "Login Succesful",
+    accessToken: accessToken,
+  });
 });
 
 const profileUp = catchAsync(async (req, res) => {
@@ -101,4 +124,4 @@ const getUsers = catchAsync(async (req, res) => {
   res.json(users);
 });
 
-module.exports = { signUp, login, getUsers, profileUp };
+module.exports = { signUp, verifyEmail, login, getUsers, profileUp };

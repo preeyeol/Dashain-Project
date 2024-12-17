@@ -12,6 +12,11 @@ const user = mongoose.Schema({
     },
   ],
   profilePicture: { type: String, default: "" },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: String,
   createdAt: { type: Date, default: new Date() },
 });
 
