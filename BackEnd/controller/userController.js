@@ -138,7 +138,7 @@ const resetPassword = catchAsync(async (req, res) => {
 
   const hashToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await userSchema
+  const user = userSchema
     .findOne({
       resetPasswordToken: hashToken,
       resetPasswordExpiresIn: {
@@ -152,7 +152,7 @@ const resetPassword = catchAsync(async (req, res) => {
     resetPasswordToken: hashToken,
     resetPasswordExpiresIn: { $gt: Date.now() },
   });
-  if (!user) {
+  if (!user || new Date(user.resetPasswordExpiresIn) > new Date()) {
     return res.status(400).json({ message: "Token in invalid or expired" });
   }
 
@@ -160,8 +160,6 @@ const resetPassword = catchAsync(async (req, res) => {
 
   (user.resetPasswordToken = undefined),
     (user.resetPasswordExpiresIn = undefined);
-
-  await user.save();
 
   res.status(200).json({
     message: "Password Updated Successfully! Please Log In",
