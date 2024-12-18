@@ -7,7 +7,7 @@ const catchAsync = require("../utils/catchAsync");
 const {
   sendVerificationCode,
   welcomeEmail,
-  resetPassword,
+  passwordReset,
 } = require("../middleware/emailVerify/email");
 
 const signUp = catchAsync(async (req, res) => {
@@ -121,9 +121,51 @@ const forgetPassword = catchAsync(async (req, res) => {
 
   const resetUrl = `${req.protocol}://${req.get(
     "host"
-  )}/apit/resetPassword/${hashToken}`;
+  )}/api/resetPassword/${hashToken}`;
+
+  await passwordReset(user.email, user.username, resetUrl);
 
   res.status(200).json({ msg: "Reset URL sent", resetUrl });
+});
+
+const resetPassword = catchAsync(async (req, res) => {
+  const { newPassword, confirmPassword } = req.body;
+  const { token } = req.params;
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await userSchema
+    .findOne({
+      resetPasswordToken: hashToken,
+      resetPasswordExpiresIn: {
+        $gt: Date.now(),
+      },
+    })
+    .select("+password");
+  console.log("HELlo");
+  console.log(user);
+  console.log({
+    resetPasswordToken: hashToken,
+    resetPasswordExpiresIn: { $gt: Date.now() },
+  });
+  if (!user) {
+    return res.status(400).json({ message: "Token in invalid or expired" });
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+
+  (user.resetPasswordToken = undefined),
+    (user.resetPasswordExpiresIn = undefined);
+
+  await user.save();
+
+  res.status(200).json({
+    message: "Password Updated Successfully! Please Log In",
+  });
 });
 
 const profileUp = catchAsync(async (req, res) => {
@@ -155,6 +197,7 @@ module.exports = {
   verifyEmail,
   login,
   forgetPassword,
+  resetPassword,
   getUsers,
   profileUp,
 };

@@ -38,20 +38,23 @@ const welcomeEmail = async (email, username) => {
   }
 };
 
-const resetPassword = async (email, username, verificationCode) => {
+const passwordReset = async (email, username, resetUrl) => {
   try {
+    let templeter = passwordReset_template.replace("{username}", username);
+    templeter = templeter.replace("{Reset Password}", resetUrl);
+
     const response = transporter.sendMail({
       from: '"Dashain Platform " <preeyeol27@gmail.com>', // sender address
       to: email, // list of receivers
       subject: "Reset your password", // Subject line
       text: "Reset Your password", // plain text body
-      html: passwordReset_template.replace("{username}", username),
-      html: passwordReset_template.replace("{resetcode}", verificationCode), //html body
+      html: templeter,
     });
+
     console.log("Email sent successfully", response);
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports = { sendVerificationCode, welcomeEmail, resetPassword };
+module.exports = { sendVerificationCode, welcomeEmail, passwordReset };

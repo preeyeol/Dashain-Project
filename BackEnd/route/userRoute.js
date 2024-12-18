@@ -6,6 +6,7 @@ const {
   verifyEmail,
   login,
   forgetPassword,
+  resetPassword,
   getUsers,
 } = require("../controller/userController");
 const { verifyToken } = require("../middleware/auth");
@@ -21,7 +22,8 @@ const { verify } = require("jsonwebtoken");
 
 userRoute.post("/signup", validateRegistration(), validate, signUp);
 userRoute.post("/verifyEmail", verifyEmail);
-userRoute.post("/resetPassword", forgetPassword);
+userRoute.post("/forgotPassword", forgetPassword);
+userRoute.post("/resetPassword/:token", resetPassword);
 userRoute.post("/login", validateLogin(), validate, login);
 userRoute.get("/", verifyToken, getUsers);
 userRoute.post(

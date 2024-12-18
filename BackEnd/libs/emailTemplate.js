@@ -176,7 +176,7 @@ const passwordReset_template = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification</title>
+    <title>Password Reset Request</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -188,48 +188,35 @@ const passwordReset_template = `<!DOCTYPE html>
             background-color: #ffffff;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .header {
-            text-align: center;
-            padding: 10px 0;
+        h1 {
+            color: #333;
         }
-        .content {
-            margin: 20px 0;
-            font-size: 16px;
-            line-height: 1.5;
+        p {
+            color: #555;
         }
-        .otp-code {
-            font-size: 24px;
-            font-weight: bold;
-            color: #007BFF;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888;
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h2>OTP Verification</h2>
-        </div>
-        <div class="content">
-            <p>Dear {username},</p>
-            <p>Your OTP code is <span class="otp-code">{resetcode}</span>.</p>
-            <p>Please use this code to complete your verification process.</p>
-        </div>
-        <div class="footer">
-            <p>&copy; 2023 Your Company. All rights reserved.</p>
-        </div>
+        <h1>Password Reset Request</h1>
+        <p>Dear {username},</p>
+        <p>Please reset your password using the link provided below:</p>
+        <a href="https://example.com/reset-password" class="button">{Reset Password}</a>
+        <p>If you did not request this password reset, please ignore this email.</p>
+        <p>Thank you!</p>
     </div>
 </body>
 </html>
+
 `;
 module.exports = {
   emailVerification_template,
