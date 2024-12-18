@@ -2,6 +2,7 @@ const { transporter } = require("./email.config");
 const {
   emailVerification_template,
   welcomeEmail_template,
+  passwordReset_template,
 } = require("../../libs/emailTemplate");
 
 const sendVerificationCode = async (email, verificationCode) => {
@@ -28,7 +29,7 @@ const welcomeEmail = async (email, username) => {
       from: '"Dashain Platform " <preeyeol27@gmail.com>', // sender address
       to: email, // list of receivers
       subject: "Welcome To Dashain Platform", // Subject line
-      text: "Welcome To Dashain Platform", // plain text body
+      text: "Verify Your Email", // plain text body
       html: welcomeEmail_template.replace("{CustomerName}", username), //html body
     });
     console.log("Email sent successfully", response);
@@ -37,4 +38,20 @@ const welcomeEmail = async (email, username) => {
   }
 };
 
-module.exports = { sendVerificationCode, welcomeEmail };
+const resetPassword = async (email, username, verificationCode) => {
+  try {
+    const response = transporter.sendMail({
+      from: '"Dashain Platform " <preeyeol27@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "Reset your password", // Subject line
+      text: "Reset Your password", // plain text body
+      html: passwordReset_template.replace("{username}", username),
+      html: passwordReset_template.replace("{resetcode}", verificationCode), //html body
+    });
+    console.log("Email sent successfully", response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { sendVerificationCode, welcomeEmail, resetPassword };

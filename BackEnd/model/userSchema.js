@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { resetPassword } = require("../middleware/emailVerify/email");
 
 const user = mongoose.Schema({
   username: { type: String, unique: true, required: true },
@@ -18,6 +19,8 @@ const user = mongoose.Schema({
   },
   verificationCode: String,
   createdAt: { type: Date, default: new Date() },
+  resetPasswordToken: String,
+  resetPasswordExpiresIn: Date,
 });
 
 const userSchema = mongoose.model("user", user);

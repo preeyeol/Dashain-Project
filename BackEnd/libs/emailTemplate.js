@@ -171,4 +171,68 @@ const welcomeEmail_template = `<!DOCTYPE html>
 </body>
 </html>`;
 
-module.exports = { emailVerification_template, welcomeEmail_template };
+const passwordReset_template = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .content {
+            margin: 20px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .otp-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>OTP Verification</h2>
+        </div>
+        <div class="content">
+            <p>Dear {username},</p>
+            <p>Your OTP code is <span class="otp-code">{resetcode}</span>.</p>
+            <p>Please use this code to complete your verification process.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2023 Your Company. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
+module.exports = {
+  emailVerification_template,
+  welcomeEmail_template,
+  passwordReset_template,
+};

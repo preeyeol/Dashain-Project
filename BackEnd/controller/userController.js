@@ -1,11 +1,13 @@
 const userSchema = require("../model/userSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const validator = require("validator");
 const catchAsync = require("../utils/catchAsync");
 const {
   sendVerificationCode,
   welcomeEmail,
+  resetPassword,
 } = require("../middleware/emailVerify/email");
 
 const signUp = catchAsync(async (req, res) => {
@@ -99,6 +101,30 @@ const login = catchAsync(async (req, res) => {
     accessToken: accessToken,
   });
 });
+const forgetPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await userSchema.findOne({ email });
+  // console.log(user);
+  if (!user) {
+    return res
+      .status(400)
+      .json({ success: familyTree, message: "User not found" });
+  }
+
+  const token = crypto.randomBytes(20).toString("hex");
+  console.log(token);
+  const tokenExpiresIn = new Date() + 10 * 60 * 1000;
+  const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+  user.resetPasswordToken = token;
+  user.resetPasswordExpiresIn = tokenExpiresIn;
+
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/apit/resetPassword/${hashToken}`;
+
+  res.status(200).json({ msg: "Reset URL sent", resetUrl });
+});
 
 const profileUp = catchAsync(async (req, res) => {
   try {
@@ -124,4 +150,11 @@ const getUsers = catchAsync(async (req, res) => {
   res.json(users);
 });
 
-module.exports = { signUp, verifyEmail, login, getUsers, profileUp };
+module.exports = {
+  signUp,
+  verifyEmail,
+  login,
+  forgetPassword,
+  getUsers,
+  profileUp,
+};
