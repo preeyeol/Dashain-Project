@@ -3,6 +3,7 @@ const {
   emailVerification_template,
   welcomeEmail_template,
   passwordReset_template,
+  passwordReset_Message,
 } = require("../../libs/emailTemplate");
 
 const sendVerificationCode = async (email, verificationCode) => {
@@ -57,4 +58,23 @@ const passwordReset = async (email, username, resetUrl) => {
   }
 };
 
-module.exports = { sendVerificationCode, welcomeEmail, passwordReset };
+const resetSuccessful = async (email, username) => {
+  try {
+    const response = transporter.sendMail({
+      from: '"Dashain Platform " <preeyeol27@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "Password reset successfully", // Subject line
+      text: "Password reset successfully", // plain text body
+      html: passwordReset_Message.replace("{username}", username), //html body
+    });
+    console.log("Email sent successfully", response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+module.exports = {
+  sendVerificationCode,
+  welcomeEmail,
+  passwordReset,
+  resetSuccessful,
+};

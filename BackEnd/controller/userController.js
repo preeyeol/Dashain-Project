@@ -8,6 +8,7 @@ const {
   sendVerificationCode,
   welcomeEmail,
   passwordReset,
+  resetSuccessful,
 } = require("../middleware/emailVerify/email");
 
 const signUp = catchAsync(async (req, res) => {
@@ -140,34 +141,30 @@ const resetPassword = catchAsync(async (req, res) => {
   const { newPassword, confirmPassword } = req.body;
   const { token } = req.params;
 
-  // Ensure passwords match
   if (newPassword !== confirmPassword) {
     return res.status(400).json({ message: "Passwords do not match" });
   }
 
-  // Hash the token
   const hashToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  // Find user with a valid token
   const user = await userSchema.findOne({
     resetPasswordToken: hashToken,
-    resetPasswordExpiresIn: { $gt: Date.now() }, // Ensure token hasn't expired
+    resetPasswordExpiresIn: { $gt: Date.now() },
   });
 
   console.log(user);
-  // If user is not found
+
   if (!user) {
     return res.status(400).json({ message: "Invalid or expired token" });
   }
 
-  // Update password and clear token fields
-  user.password = await bcrypt.hash(newPassword, 10); // Hash new password
-  user.resetPasswordToken = undefined; // Clear reset token
-  user.resetPasswordExpiresIn = undefined; // Clear token expiration
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpiresIn = undefined;
 
-  // Save updated user
   await user.save();
 
+  await resetSuccessful(user.email, user.username);
   res.status(200).json({
     message: "Password updated successfully! Please log in.",
   });

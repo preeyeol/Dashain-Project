@@ -277,4 +277,5 @@ module.exports = {
   emailVerification_template,
   welcomeEmail_template,
   passwordReset_template,
+  passwordReset_Message,
 };
