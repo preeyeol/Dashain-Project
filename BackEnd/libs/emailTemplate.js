@@ -218,6 +218,61 @@ const passwordReset_template = `<!DOCTYPE html>
 </html>
 
 `;
+
+const passwordReset_Message = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Change Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            color: #555;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Password Has Been Changed</h2>
+        <p>Dear {username}</p>
+        <p>We wanted to let you know that your password has been successfully changed. If you did not authorize this change, please contact our support team immediately.</p>
+        <p><a href="mailto:support@example.com">Contact Support</a></p>
+        <p>Thank you,</p>
+        <p>Dashain Platform Team</p>
+        <div class="footer">
+            <p>If you have any questions, feel free to reach out to us.</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
+
 module.exports = {
   emailVerification_template,
   welcomeEmail_template,

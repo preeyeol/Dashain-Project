@@ -86,6 +86,12 @@ const login = catchAsync(async (req, res) => {
     return res.status(400).json({ error: "User Not Found" });
   }
 
+  if (user.isVerified === false) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please verify first" });
+  }
+
   const isCorrect = await bcrypt.compare(password, user.password);
   if (!isCorrect) {
     return res.status(400).json({
@@ -105,23 +111,25 @@ const forgetPassword = catchAsync(async (req, res) => {
   const { email } = req.body;
 
   const user = await userSchema.findOne({ email });
-  // console.log(user);
+  console.log(user);
   if (!user) {
     return res
       .status(400)
-      .json({ success: familyTree, message: "User not found" });
+      .json({ success: true, message: "User not found with this email" });
   }
 
   const token = crypto.randomBytes(20).toString("hex");
   console.log(token);
-  const tokenExpiresIn = new Date() + 10 * 60 * 1000;
+  const tokenExpiresIn = Date.now() + 10 * 60 * 1000;
   const hashToken = crypto.createHash("sha256").update(token).digest("hex");
-  user.resetPasswordToken = token;
+  user.resetPasswordToken = hashToken;
   user.resetPasswordExpiresIn = tokenExpiresIn;
 
   const resetUrl = `${req.protocol}://${req.get(
     "host"
-  )}/api/resetPassword/${hashToken}`;
+  )}/api/resetPassword/${token}`;
+
+  await user.save();
 
   await passwordReset(user.email, user.username, resetUrl);
 
@@ -132,37 +140,36 @@ const resetPassword = catchAsync(async (req, res) => {
   const { newPassword, confirmPassword } = req.body;
   const { token } = req.params;
 
+  // Ensure passwords match
   if (newPassword !== confirmPassword) {
     return res.status(400).json({ message: "Passwords do not match" });
   }
 
+  // Hash the token
   const hashToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = userSchema
-    .findOne({
-      resetPasswordToken: hashToken,
-      resetPasswordExpiresIn: {
-        $gt: Date.now(),
-      },
-    })
-    .select("+password");
-  console.log("HELlo");
-  console.log(user);
-  console.log({
+  // Find user with a valid token
+  const user = await userSchema.findOne({
     resetPasswordToken: hashToken,
-    resetPasswordExpiresIn: { $gt: Date.now() },
+    resetPasswordExpiresIn: { $gt: Date.now() }, // Ensure token hasn't expired
   });
-  if (!user || new Date(user.resetPasswordExpiresIn) > new Date()) {
-    return res.status(400).json({ message: "Token in invalid or expired" });
+
+  console.log(user);
+  // If user is not found
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired token" });
   }
 
-  user.password = await bcrypt.hash(newPassword, 10);
+  // Update password and clear token fields
+  user.password = await bcrypt.hash(newPassword, 10); // Hash new password
+  user.resetPasswordToken = undefined; // Clear reset token
+  user.resetPasswordExpiresIn = undefined; // Clear token expiration
 
-  (user.resetPasswordToken = undefined),
-    (user.resetPasswordExpiresIn = undefined);
+  // Save updated user
+  await user.save();
 
   res.status(200).json({
-    message: "Password Updated Successfully! Please Log In",
+    message: "Password updated successfully! Please log in.",
   });
 });
 
