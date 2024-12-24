@@ -6,13 +6,14 @@ const validator = require("validator");
 
 const catchAsync = require("../utils/catchAsync");
 const {
-  sendVerificationCode,
+  sendEmailCode,
   welcomeEmail,
   passwordReset,
   resetSuccessful,
 } = require("../middleware/emailVerify/email");
 
-const sendOTP = require("../middleware/smsVerify/sms");
+const sendSMS = require("../middleware/smsVerify/sms");
+const createOTP = require("../utils/otp");
 
 const signUp = catchAsync(async (req, res) => {
   try {
@@ -39,35 +40,15 @@ const signUp = catchAsync(async (req, res) => {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
-    const randomInt = (min, max) =>
-      Math.floor(Math.random() * (max - min + 1)) + min;
-
-    const otp = randomInt(100000, 999999);
 
     const userAdd = new userSchema({
       email: email,
       username: username,
       password: hashPassword,
-      verificationCode,
-      otp,
-      otpExpiration: Date.now() + 600000,
       phone: phone,
     });
 
     const newUser = await userAdd.save();
-
-    if (email == req.body) {
-      sendVerificationCode(newUser.email, verificationCode);
-    }
-
-    if (phone == req.body) {
-      sendOTP(newUser.phone, otp);
-    }
-
     res.status(200).json({ msg: "You have Signed Up", newUser });
   } catch (err) {
     console.log(err);
@@ -75,30 +56,83 @@ const signUp = catchAsync(async (req, res) => {
   }
 });
 
-const verifyEmail = catchAsync(async (req, res) => {
-  const { code } = req.body;
+const sendOTP = catchAsync(async (req, res) => {
+  const { email, phone } = req.body;
+
+  const otp = createOTP();
+
   const user = await userSchema.findOne({
-    verificationCode: code,
+    $or: [{ email }, { phone }],
   });
 
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found." });
+  }
+
+  user.otp = otp;
+  user.otpExpiration = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+  await user.save();
+
+  if (email) {
+    try {
+      await sendEmailCode(user.email, otp);
+      return res
+        .status(200)
+        .json({ success: true, message: `OTP sent to your email: ${email}` });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP to email.",
+      });
+    }
+  }
+
+  if (phone) {
+    try {
+      await sendSMS(user.phone, otp);
+      return res
+        .status(200)
+        .json({ success: true, message: `OTP sent to your phone: ${phone}` });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP to phone.",
+      });
+    }
+  }
+
+  return res.status(400).json({
+    success: false,
+    message: "Please provide either an email or phone to send OTP.",
+  });
+});
+
+const verifyEmail = catchAsync(async (req, res) => {
+  const { email, otp } = req.body;
+
+  const user = await userSchema.findOne({ email: email, otp: otp });
+
+  console.log(user);
   if (!user) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid or Expired Code" });
   }
 
-  const isVerificationValid =
-    user.verificationCode === code && Date.now() < user.otpExpiration;
+  const isOtpValid = user.otp === otp && Date.now() < user.otpExpiration;
 
-  if (!isVerificationValid) {
+  console.log("hggikj");
+  if (!isOtpValid) {
+    console.log("hggikj");
     return res
       .status(400)
       .json({ success: false, message: "Invalid or expired OTP" });
   }
 
   user.isEmailVerified = true;
-  user.isAccountVertified = true;
-  user.verificationCode = undefined;
+
+  user.otp = undefined;
+  user.otpExpiration = undefined;
 
   await user.save();
   await welcomeEmail(user.email, user.username);
@@ -110,7 +144,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 const verifyPhone = catchAsync(async (req, res) => {
   const { phone, otp } = req.body;
   try {
-    const user = await userSchema.findOne({ phone });
+    const user = await userSchema.findOne({ phone: phone, otp: otp });
     if (!user)
       return res
         .status(404)
@@ -123,7 +157,7 @@ const verifyPhone = catchAsync(async (req, res) => {
         .json({ success: false, message: "Invalid or expired OTP" });
     }
     user.isNumberVerified = true;
-    user.isAccountVertified = true;
+
     user.otp = undefined;
     user.otpExpiration = undefined;
     await user.save();
@@ -135,6 +169,33 @@ const verifyPhone = catchAsync(async (req, res) => {
     console.error("Error verifying OTP:", error);
     res.status(500).json({ success: false, message: "Failed to verify OTP" });
   }
+});
+
+const accountVerify = catchAsync(async (req, res) => {
+  const { email, phone } = req.body;
+  const user = await userSchema.findOne({
+    $or: [{ email }, { phone }],
+  });
+  console.log(user);
+
+  if (!user.isEmailVerified == true && !user.isNumberVerified == true) {
+    return res.status(400).json({
+      message:
+        "Email and Number,both must be verified for account verification",
+    });
+  }
+
+  if (user.isAccountVerified == true) {
+    return res.status(400).json({ message: "Account Already Verified" });
+  }
+
+  user.isAccountVerified = true;
+  // user.isEmailVerified = undefined;
+  // user.isNumberVerified = undefined;
+  user.otp = undefined;
+  user.otpExpiration = undefined;
+  await user.save();
+  res.status(200).json({ message: "Account Verified" });
 });
 
 const login = catchAsync(async (req, res) => {
@@ -255,8 +316,10 @@ const getUsers = catchAsync(async (req, res) => {
 
 module.exports = {
   signUp,
+  sendOTP,
   verifyEmail,
   verifyPhone,
+  accountVerify,
   login,
   forgetPassword,
   resetPassword,

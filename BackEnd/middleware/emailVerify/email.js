@@ -6,7 +6,7 @@ const {
   passwordReset_Message,
 } = require("../../libs/emailTemplate");
 
-const sendVerificationCode = async (email, verificationCode) => {
+const sendEmailCode = async (email, verificationCode) => {
   try {
     const response = transporter.sendMail({
       from: '"Dashain Platform " <preeyeol27@gmail.com>', // sender address
@@ -73,7 +73,7 @@ const resetSuccessful = async (email, username) => {
   }
 };
 module.exports = {
-  sendVerificationCode,
+  sendEmailCode,
   welcomeEmail,
   passwordReset,
   resetSuccessful,

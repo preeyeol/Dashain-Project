@@ -5,6 +5,7 @@ const {
   signUp,
   verifyEmail,
   verifyPhone,
+  sendOTP,
   accountVerify,
   login,
   forgetPassword,
@@ -23,8 +24,10 @@ const {
 const { verify } = require("jsonwebtoken");
 
 userRoute.post("/signup", validateRegistration(), validate, signUp);
+userRoute.post("/sendotp", sendOTP);
 userRoute.post("/verifyEmail/", verifyEmail);
 userRoute.post("/verifyPhone", verifyPhone);
+userRoute.post("/accountverify", accountVerify);
 userRoute.post("/forgotPassword", forgetPassword);
 userRoute.post("/resetPassword/:token", resetPassword);
 userRoute.post("/login", validateLogin(), validate, login);
