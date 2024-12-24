@@ -190,8 +190,7 @@ const accountVerify = catchAsync(async (req, res) => {
   }
 
   user.isAccountVerified = true;
-  // user.isEmailVerified = undefined;
-  // user.isNumberVerified = undefined;
+
   user.otp = undefined;
   user.otpExpiration = undefined;
   await user.save();
@@ -237,6 +236,10 @@ const forgetPassword = catchAsync(async (req, res) => {
     return res
       .status(400)
       .json({ success: true, message: "User not found with this email" });
+  }
+
+  if (!user.isAccountVerified == true) {
+    return res.status(400).json({ message: "Account must be verified" });
   }
 
   const token = crypto.randomBytes(20).toString("hex");
