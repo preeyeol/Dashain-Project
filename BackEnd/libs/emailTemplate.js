@@ -111,9 +111,7 @@ const welcomeEmail_template = `<!DOCTYPE html>
       
       <tr>
         <td style="padding-bottom: 20px">
-          <span>
-           Here’s a short video to help get you started. <a style="color: #003BB3" href="#">Watch video</a>
-          </span>
+         
         </td>
       </tr>
       

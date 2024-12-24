@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { resetPassword } = require("../middleware/emailVerify/email");
+// const { resetPassword } = require("../middleware/emailVerify/email");
 
 const user = mongoose.Schema({
   username: { type: String, unique: true, required: true },
@@ -13,11 +13,22 @@ const user = mongoose.Schema({
     },
   ],
   profilePicture: { type: String, default: "" },
-  isVerified: {
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isNumberVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isAccountVerified: {
     type: Boolean,
     default: false,
   },
   verificationCode: String,
+  phone: { type: String, unique: true, required: true },
+  otp: String,
+  otpExpiration: Date,
   createdAt: { type: Date, default: new Date() },
   resetPasswordToken: String,
   resetPasswordExpiresIn: Date,

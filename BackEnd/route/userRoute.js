@@ -4,6 +4,8 @@ const userRoute = express.Router();
 const {
   signUp,
   verifyEmail,
+  verifyPhone,
+  accountVerify,
   login,
   forgetPassword,
   resetPassword,
@@ -22,6 +24,7 @@ const { verify } = require("jsonwebtoken");
 
 userRoute.post("/signup", validateRegistration(), validate, signUp);
 userRoute.post("/verifyEmail/", verifyEmail);
+userRoute.post("/verifyPhone", verifyPhone);
 userRoute.post("/forgotPassword", forgetPassword);
 userRoute.post("/resetPassword/:token", resetPassword);
 userRoute.post("/login", validateLogin(), validate, login);
