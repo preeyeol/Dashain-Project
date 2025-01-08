@@ -16,6 +16,7 @@ const xss = require("xss-clean");
 
 const server = http.createServer(app);
 const io = new Server(server);
+const errorHandler = require("./middleware/errorMiddleware");
 
 app.use(express.json());
 app.use(morgan("tiny"));
@@ -38,8 +39,6 @@ const photoRoute = require("./route/photoRoute");
 const searchRoute = require("./route/searchRoute");
 const profileRoute = require("./route/profileRoute");
 const AppError = require("./utils/appError");
-
-const errorHandler = require("./middleware/errorMiddleware");
 
 app.get("/errorTest", (req, res) => {
   const error = new Error("Developement Error", 500);
@@ -66,6 +65,7 @@ app.use("/api", profileRoute);
 const socketVerify = require("./middleware/socketMiddleware");
 const socketHandle = require("./socket/socket");
 
+app.use(errorHandler());
 io.use(socketVerify);
 socketHandle(io);
 
